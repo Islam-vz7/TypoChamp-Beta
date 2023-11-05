@@ -16,6 +16,8 @@ from pygame.locals import *
 import time
 import math
 from math import floor
+# from pygame import mixer
+
 
 pygame.init()
 
@@ -40,9 +42,24 @@ menu_ground = pygame.image.load("TypoChampLogo.png")
 font = pygame.font.Font(None, 36)
 font2 = pygame.font.Font(None, 42)
 
+# Prompt users to enter nickname
+# name_surface = pygame.Surface((400,300))
+# name_surface.fill('')
+# name = input("Please enter your nickname")
+# print("Let's get started")
+
 # Define the menu options
 menu_options = ["Start",  "Scores", "Credits", "Quit"] 
 # round_options = ["Keep Challenging", "Give up"]
+
+# Set up the background music 
+# mixer.init()
+# mixer.music.load("Benny.wav")
+# mixer.music.play()
+
+# Set up music when user types a word correctly 
+# word_music = "mixkit.wav"
+
 
 # Initialize variables
 selected_option = 0
@@ -180,176 +197,236 @@ while True:
       clock = pygame.time.Clock() 
       font = pygame.font.Font(None ,font_size)
 
-      level_1_et = 1  #On which minute level 1 ends
-      level_2_et = 2  #On which minute level 2 ends
-      level_3_et = 3  #On which minute level 3 ends
+
+      #Name Input Box
+      input_box = pygame.Rect(290, 200, 200, 32)
+      color_inactive = pygame.color(red)
+      color_active = pygame.color(black)
       
-      words_ons = []  #List of all words on screen
-      words_pos = []  #List of all word positions on screen // index 0 is position of word index 0 in words_ons
-      words_grv = []  #List of all word fall speeds
-      words_fnt = []  #List of all word fonts // each word has own custom font
-      words_clr = []  #List of all word colors
- 
-      milsec = 1000
-      seconds = 0
-      minutes = 0
-      #score, score_text = 0, 'Score: 0'.rjust(30)
-      playername, name_text = "Playername", "Playername".ljust(0) #Get player name from somewhere
-      the_big_time = (str(minutes) + " : " + str(floor(seconds))).center(0)
-      pygame.time.set_timer(pygame.USEREVENT, 10)             
-                                                               
+      text = ''
 
-      screen.fill(background_colour)
+    # Game variables
+    game_running = False
 
-      #Organizing the words according to their length and put them in a list to use later
-      def read_words1():
-         level1_words = []
-         with open("words.txt", "+r") as file:
-            for line in file:
-              word = line.strip()
-              if 1 <= len(word) <= 6:
-                level1_words.append(word)
-          
-         return level1_words
-      
-      def read_words2():
-         level2_words = []
-         with open("words.txt", "+r") as file:
-            for line in file:
-              word = line.strip()
-              if 7 <= len(word) <= 10:
-                 level2_words.append(word) 
-
-         return level2_words
-      
-      def read_words3():
-         level3_words = []
-         with open("words.txt", "+r") as file:
-            for line in file:
-              word = line.strip()
-              if  len(word) >= 11:
-                 level3_words.append(word) 
-
-         return level3_words
-
-      level1_words = read_words1()
-      level2_words = read_words2()
-      level3_words = read_words3()
-
-      
-      def spawn_new_word(): #Spawns a new word on screen
-        if minutes < level_1_et:
-          new_word = str(random.choice(level1_words))
-          fnt = pygame.font.Font(None, 44)
-          
-        elif minutes < level_2_et:
-          ch = random.randint(0, 1)
-          if ch == 0:
-            new_word = str(random.choice(level1_words))
-            fnt = pygame.font.Font(None, 44)
-          if ch == 1:
-            new_word = str(random.choice(level2_words))
-            fnt = pygame.font.Font(None, 38)
-            
-        elif minutes < level_3_et:
-          ch = random.randint(0, 2)
-          if ch == 0:
-            new_word = str(random.choice(level1_words))
-            fnt = pygame.font.Font(None, 44)
-          if ch == 1:
-            new_word = str(random.choice(level2_words))
-            fnt = pygame.font.Font(None, 38)
-          if ch == 2:
-            new_word = str(random.choice(level3_words))
-            fnt = pygame.font.Font(None, 34)
-        
-        cl = random.randint(100, 255)
-        clr = (cl, cl, cl)
-        grv = gravity
-        words_ons.append(new_word)
-        words_pos.append([random.randint(50, 540), 0])
-        words_grv.append(grv)
-        words_fnt.append(fnt)
-        words_clr.append(clr)
-        print(f"New word: {words_ons[-1]}, Position: X:{words_pos[-1][0]} Y:{words_pos[-1][1]}")
-
-
-      def apply_gravity(): #Shifts all words on screen downwards
-         for x in range(0, len(words_pos)):
-            words_pos[x][1] += words_grv[x]
-
-      #Input
-      while not game_over:    
+    # Main loop
+    running = True
+    while running:
         for event in pygame.event.get():
-          if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-          elif event.type == pygame.KEYDOWN:
-             if event.key == pygame.K_BACKSPACE:
-                input_word = input_word[:-1]
-             elif event.key == pygame.K_RETURN:
-                for index in range(0, len(words_ons) - 1):
-                   if input_word == words_ons[index]:
-                      del words_ons[index]
-                      del words_pos[index]
-                      del words_grv[index]
-                      del words_fnt[index]
-                      del words_clr[index]
-                      score += len(input_word)
-                input_word = ""
-             elif event.key in range(97,123):
-                input_word += event.unicode
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    active = not active
+                else:
+                    active = False
+                color = color_active if active else color_inactive
+            if event.type == pygame.KEYDOWN:
+                if active:
+                    if event.key == pygame.K_RETURN:
+                        print(text)  # You can store or display the entered name as needed
+                        text = ''
+                        game_running = True  # Start the game
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
+                    text_surface = font.render(text, True, color)
+                    
+        screen.fill(white)
 
+        pygame.draw.rect(screen, blue, input_box, 2)
+        screen.blit(text_surface, (input_box.x + 5, input_box.y + 5))
 
-
-
-          if event.type == pygame.USEREVENT: # Updates the timer, and text to be displayed
-            word_ttf -= 0.01
-            gravity_cd -= 0.01
-            seconds += 0.01
-            the_big_time = (str(minutes) + " : " + str(floor(seconds))).center(0)
-            apply_gravity()
-
-            for index in range(0, len(words_ons) - 1):
-               if words_pos[index][1] >= 200:
-                      del words_ons[index]
-                      del words_pos[index]
-                      del words_grv[index]
-                      del words_fnt[index]
-                      del words_clr[index]
-                      break
-
-            if gravity_cd <= 0:
-               gravity_cd = gravity_cdm
-               gravity += 0.05
-            if seconds >= 60:
-              seconds = 0
-              minutes += 1
-              the_big_time = (str(minutes) + " : " + str(floor(seconds))).center(0)
-            if word_ttf <= 0:
-              word_ttf = word_cooldown
-              spawn_new_word()
-              
-        pygame.display.update()
-        screen.fill(background_colour)
-
-        #Displaying text
-        if(len(words_ons) > 0):
-          for x in range(0, len(words_ons) - 1):
-            screen.blit(words_fnt[x].render(words_ons[x], True, words_clr[x]), (words_pos[x][0], words_pos[x][1]))
-            
-        pygame.draw.rect(screen, (25, 25, 25), (0, 0, 800, 35))                 #Black bar on top
-        screen.blit(font.render(name_text, True, font_colour), (650, 5))       #Playername
-        screen.blit(font.render(the_big_time, True, font_colour), (360, 5))  #Timer
-
-
-        screen.blit(font.render(f"Score: {score}", True, font_colour), (4, 4))    #Score
-
-
-        input_surface = font.render(input_word, True, blue)
-        screen.blit(input_surface, (width // 2 - 50, height -50)) #Input
+        # Update display
         pygame.display.flip()
-        clock.tick(60)
+
+        # Start the game loop if the name is entered
+        if game_running:
+                    
+            level_1_et = 1  #On which minute level 1 ends
+            level_2_et = 2  #On which minute level 2 ends
+            level_3_et = 3  #On which minute level 3 ends
+            
+            words_ons = []  #List of all words on screen
+            words_pos = []  #List of all word positions on screen // index 0 is position of word index 0 in words_ons
+            words_grv = []  #List of all word fall speeds
+            words_fnt = []  #List of all word fonts // each word has own custom font
+            words_clr = []  #List of all word colors
+
+            milsec = 1000
+            seconds = 0
+            minutes = 0
+            #score, score_text = 0, 'Score: 0'.rjust(30)
+            playername, name_text = "Playername", "Playername".ljust(0) #Get player name from somewhere
+            the_big_time = (str(minutes) + " : " + str(floor(seconds))).center(0)
+            pygame.time.set_timer(pygame.USEREVENT, 10)             
+                                                                    
+
+            screen.fill(background_colour)
+
+            #Organizing the words according to their length and put them in a list to use later
+            def read_words1():
+                level1_words = []
+                with open("words.txt", "+r") as file:
+                 for line in file:
+                    word = line.strip()
+                    if 1 <= len(word) <= 6:
+                     level1_words.append(word)
+                  
+                return level1_words
+            
+            def read_words2():
+                level2_words = []
+                with open("words.txt", "+r") as file:
+                 for line in file:
+                    word = line.strip()
+                    if 7 <= len(word) <= 10:
+                        level2_words.append(word) 
+
+                return level2_words
+            
+            def read_words3():
+                level3_words = []
+                with open("words.txt", "+r") as file:
+                 for line in file:
+                    word = line.strip()
+                    if  len(word) >= 11:
+                        level3_words.append(word) 
+
+                return level3_words
+
+            level1_words = read_words1()
+            level2_words = read_words2()
+            level3_words = read_words3()
+
+            
+            def spawn_new_word(): #Spawns a new word on screen
+             if minutes < level_1_et:
+                new_word = str(random.choice(level1_words))
+                fnt = pygame.font.Font(None, 44)
+                
+             elif minutes < level_2_et:
+                ch = random.randint(0, 1)
+                if ch == 0:
+                 new_word = str(random.choice(level1_words))
+                 fnt = pygame.font.Font(None, 44)
+                if ch == 1:
+                 new_word = str(random.choice(level2_words))
+                 fnt = pygame.font.Font(None, 38)
+                
+             elif minutes < level_3_et:
+                ch = random.randint(0, 2)
+                if ch == 0:
+                 new_word = str(random.choice(level1_words))
+                 fnt = pygame.font.Font(None, 44)
+                if ch == 1:
+                 new_word = str(random.choice(level2_words))
+                 fnt = pygame.font.Font(None, 38)
+                if ch == 2:
+                 new_word = str(random.choice(level3_words))
+                 fnt = pygame.font.Font(None, 34)
+            
+                cl = random.randint(100, 255)
+                clr = (cl, cl, cl)
+                grv = gravity
+                words_ons.append(new_word)
+                words_pos.append([random.randint(50, 540), 0])
+                words_grv.append(grv)
+                words_fnt.append(fnt)
+                words_clr.append(clr)
+                print(f"New word: {words_ons[-1]}, Position: X:{words_pos[-1][0]} Y:{words_pos[-1][1]}")
+
+
+            def apply_gravity(): #Shifts all words on screen downwards
+                for x in range(0, len(words_pos)):
+                 words_pos[x][1] += words_grv[x]
+
+            #Input
+            while not game_over:    
+             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                 pygame.quit()
+                 sys.exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_BACKSPACE:
+                     input_word = input_word[:-1]
+                    elif event.key == pygame.K_RETURN:
+                     for index in range(0, len(words_ons) - 1):
+                        if input_word == words_ons[index]:
+                            del words_ons[index]
+                            del words_pos[index]
+                            del words_grv[index]
+                            del words_fnt[index]
+                            del words_clr[index]
+                            score += len(input_word)
+                            input_word = ""
+                        elif event.key in range(97,123):
+                         input_word += event.unicode
+
+
+
+
+                if event.type == pygame.USEREVENT: # Updates the timer, and text to be displayed
+                 word_ttf -= 0.01
+                 gravity_cd -= 0.01
+                 seconds += 0.01
+                 the_big_time = (str(minutes) + " : " + str(floor(seconds))).center(0)
+                apply_gravity()
+
+                for index in range(0, len(words_ons) - 1):
+                    if words_pos[index][1] >= 200:
+                            del words_ons[index]
+                            del words_pos[index]
+                            del words_grv[index]
+                            del words_fnt[index]
+                            del words_clr[index]
+                            break
+
+                if gravity_cd <= 0:
+                    gravity_cd = gravity_cdm
+                    gravity += 0.05
+                if seconds >= 60:
+                    seconds = 0
+                    minutes += 1
+                    the_big_time = (str(minutes) + " : " + str(floor(seconds))).center(0)
+                if word_ttf <= 0:
+                    word_ttf = word_cooldown
+                    spawn_new_word()
+                    
+            pygame.display.update()
+            screen.fill(background_colour)
+
+            #Displaying text
+            if(len(words_ons) > 0):
+                for x in range(0, len(words_ons) - 1):
+                 screen.blit(words_fnt[x].render(words_ons[x], True, words_clr[x]), (words_pos[x][0], words_pos[x][1]))
+                
+            pygame.draw.rect(screen, (25, 25, 25), (0, 0, 800, 35))                 #Black bar on top
+            screen.blit(font.render(name_text, True, font_colour), (650, 5))       #Playername
+            screen.blit(font.render(the_big_time, True, font_colour), (360, 5))  #Timer
+
+
+            screen.blit(font.render(f"Score: {score}", True, font_colour), (4, 4))    #Score
+
+
+            input_surface = font.render(input_word, True, blue)
+            screen.blit(input_surface, (width // 2 - 50, height -50)) #Input
+            pygame.display.flip()
+            clock.tick(60)
+
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    game_running = False
+
+            # Draw game elements and update display
+            screen.fill(black)
+            # Your game drawing and logic code goes here
+
+            pygame.display.flip()
+                            
+                    
+                        
 
 
 # #Add ranking board 

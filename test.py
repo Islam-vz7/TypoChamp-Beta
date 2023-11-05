@@ -1,85 +1,79 @@
 import pygame
 import sys
-import random
 
 # Initialize Pygame
 pygame.init()
 
-# Set up the game window
+# Set up display
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Word Fall Game")
+pygame.display.set_caption("Enter Your Name")
 
-# Set up colors
+# Colors
 white = (255, 255, 255)
 black = (0, 0, 0)
-
-# Set up the font
 font = pygame.font.Font(None, 36)
 
-# Load a list of words
-word_list = ["python", "game", "pygame", "coding", "keyboard", "challenge", "fun"]
+# Input box variables
+input_box = pygame.Rect(290, 200, 200, 32)
+color_inactive = pygame.Color('lightskyblue3')
+color_active = pygame.Color('dodgerblue2')
+color = color_inactive
+text = ''
+text_surface = font.render(text, True, color)
+active = False
 
-# Initialize variables
-falling_words = []
-input_word = ""
-score = 0
+# Game variables
+game_running = False
 
-# Function to generate a new falling word
-def generate_falling_word():
-    return {
-        "word": random.choice(word_list),
-        "x": random.randint(0, width - 100),
-        "y": 0
-    }
-
-# Main game loop
-while True:
+# Main loop
+running = True
+while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_BACKSPACE:
-                input_word = input_word[:-1]
-            elif event.key == pygame.K_RETURN:
-                for word in falling_words:
-                    if input_word == word["word"]:
-                        falling_words.remove(word)
-                        score += 1
-                input_word = ""
-            elif event.key in range(97, 123):  # Check if the key is a lowercase letter
-                input_word += event.unicode
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if input_box.collidepoint(event.pos):
+                active = not active
+            else:
+                active = False
+            color = color_active if active else color_inactive
+        if event.type == pygame.KEYDOWN:
+            if active:
+                if event.key == pygame.K_RETURN:
+                    print(text)  # You can store or display the entered name as needed
+                    text = ''
+                    game_running = True  # Start the game
+                elif event.key == pygame.K_BACKSPACE:
+                    text = text[:-1]
+                else:
+                    text += event.unicode
+                text_surface = font.render(text, True, color)
 
-    # Update falling words
-    for word in falling_words:
-        word["y"] += 5
-
-    # Generate a new falling word
-    if random.randint(0, 100) < 5:
-        falling_words.append(generate_falling_word())
-
-    # Check for collision with the bottom
-    for word in falling_words:
-        if word["y"] > height - 50:
-            falling_words.remove(word)
-
-    # Draw everything
+    # Draw background
     screen.fill(white)
 
-    for word in falling_words:
-        word_surface = font.render(word["word"], True, black)
-        screen.blit(word_surface, (word["x"], word["y"]))
+    # Draw input box and text
+    pygame.draw.rect(screen, color, input_box, 2)
+    screen.blit(text_surface, (input_box.x + 5, input_box.y + 5))
 
-    input_surface = font.render(input_word, True, black)
-    screen.blit(input_surface, (width // 2 - 50, height - 50))
-
-    # Display the score
-    score_surface = font.render(f"Score: {score}", True, black)
-    screen.blit(score_surface, (10, 10))
-
-    # Update the display
+    # Update display
     pygame.display.flip()
 
-    # Cap the frame rate
-    pygame.time.Clock().tick(30)
+    # Start the game loop if the name is entered
+    if game_running:
+        # Your game code goes here
+        # For example, a simple game loop that quits when the user presses the close button
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_running = False
+
+        # Draw game elements and update display
+        screen.fill(black)
+        # Your game drawing and logic code goes here
+
+        pygame.display.flip()
+
+# Quit Pygame
+pygame.quit()
+sys.exit()

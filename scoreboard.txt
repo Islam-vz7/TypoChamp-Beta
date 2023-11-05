@@ -1,0 +1,4 @@
+rubberJam, 300
+tastyCrust, 105
+jummbo, 50
+tricksy, 1

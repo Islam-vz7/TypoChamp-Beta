@@ -39,6 +39,7 @@ menu_ground = pygame.image.load("TypoChampLogo.png")
 # Set up the font
 font = pygame.font.Font(None, 36)
 font2 = pygame.font.Font(None, 42)
+font3 = pygame.font.Font(None, 52)
 
 # Define the menu options
 menu_options = ["Start",  "Scores", "Credits", "Quit"] 
@@ -140,12 +141,17 @@ while True:
       seconds = 0
       minutes = 0
       #score, score_text = 0, 'Score: 0'.rjust(30)
-      playername, name_text = "Playername", "Playername".ljust(0) #Get player name from somewhere
+      playername, name_text = "SOURCE", "SOURCE".ljust(0) #Get player name from somewhere
       the_big_time = (str(minutes) + " : " + str(floor(seconds))).center(0)
       pygame.time.set_timer(pygame.USEREVENT, 10)             
                                                                
 
       screen.fill(background_colour)
+
+      def END_SCREEN_ITS_OVER(playername, score):
+         scoreboard = open("data.txt", "a")
+         scoreboard.write(f"\n{playername}, {score}")
+         scoreboard.close()
 
       #Organizing the words according to their length and put them in a list to use later
       def read_words1():
@@ -247,6 +253,8 @@ while True:
               input_word += event.unicode
 
           if event.type == pygame.USEREVENT: # Updates the timer, and text to be displayed
+            if minutes >= 3:
+               END_SCREEN_ITS_OVER(playername, score)
             word_ttf -= 0.01
             gravity_cd -= 0.01
             seconds += 0.01
@@ -297,11 +305,10 @@ while True:
             screen.blit(words_fnt[x].render(words_ons[x], True, words_clr[x]), (words_pos[x][0], words_pos[x][1]))
             
         pygame.draw.rect(screen, (25, 25, 25), (0, 0, 800, 35))
-        #pygame.draw.rect(screen, (white), (350, 540, 100, 35))                 #Black bar on top
         screen.blit(font.render(name_text, True, font_colour), (650, 5))       #Playername
         screen.blit(font.render(the_big_time, True, font_colour), (360, 5))  #Timer
         screen.blit(font.render(f"Score: {score}", True, font_colour), (4, 4))    #Score
-        screen.blit(font.render(input_word.center(33), True, red), (width // 2 - 160, height -50)) #Input
+        screen.blit(font3.render(input_word.center(128), True, (255, 0, 0)), (width // 2 - 660, height -50)) #Input
 
         pygame.display.flip()
         clock.tick(60)
