@@ -1,4 +1,16 @@
-rubberJam, 300
-tastyCrust, 105
-jummbo, 50
-tricksy, 1
+none, 0
+none, 0
+none, 0
+none, 0
+none, 0
+none, 0
+none, 0
+none, 0
+none, 0
+none, 0
+none, 0
+none, 0
+none, 0
+none, 0
+none, 0
+

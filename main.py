@@ -16,6 +16,7 @@ from pygame.locals import *
 import time
 import math
 from math import floor
+import os
 
 pygame.init()
 
@@ -41,6 +42,7 @@ font = pygame.font.Font(None, 36)
 font2 = pygame.font.Font(None, 42)
 font3 = pygame.font.Font(None, 52)
 font4 = pygame.font.Font(None, 64)
+end_font = pygame.font.Font(None, 72)
 
 # Define the menu options
 menu_options = ["Start", "Quit"] 
@@ -66,7 +68,7 @@ def display_menu():
     for i, option in enumerate(menu_options):
         text_color = purple if i == selected_option else black
         text_surface = font4.render(option, True, text_color)
-        text_rect = text_surface.get_rect(center=(width // 2, height // 1.6 + i * 50))
+        text_rect = text_surface.get_rect(center=(width // 4.1, height // 1.4 + i * 50))
         screen.blit(text_surface, text_rect)
 
     pygame.display.flip()
@@ -90,22 +92,17 @@ while True:
                     if selected_option == 0:  # Start
                         start_game()
                         in_menu = False
-                    elif selected_option == 1:  # Scores
-                        open_scores()
-                        in_menu = False
-                    elif selected_option == 2:  # Credits
-                        open_credits()
-                        in_menu = False
-                    elif selected_option == 3:  # Quit
+                
+                    elif selected_option == 1:  # Quit
                         pygame.quit()
                         sys.exit()
 
     if in_menu:
         display_menu()
-    elif selected_option == 2:
-      pass
-    elif selected_option == 1:
-       pass
+    # elif selected_option == 2:
+    #   pass
+    # elif selected_option == 1:
+    #    pass
     
     else:   
     #Defining
@@ -121,6 +118,7 @@ while True:
       word_ttf = word_cooldown # TIME TO FALL
       game_over = False
       input_word = ""
+      input_name = ""
       score = 0
 
       screen = pygame.display.set_mode((width,height))
@@ -149,10 +147,43 @@ while True:
 
       screen.fill(background_colour)
 
-      def END_SCREEN_ITS_OVER(playername, score):
-         scoreboard = open("data.txt", "a")
-         scoreboard.write(f"\n{playername}, {score}")
-         scoreboard.close()
+      def ADD_TO_SCOREBOARD(playername, playerscore):
+         file = open("scoreboard.txt", "a")
+         file.write(f"{playername}, {playerscore}")
+         file.close()
+         pass
+
+      # THE END SCREEN GOES HERE PLEASE
+      def END_SCREEN_Display(score, events):
+         #nonlocal input_name
+
+         screen.fill(background_colour)
+         screen.blit(end_font.render(f"Thanks for playing!", True, white), (160,80))
+         screen.blit(end_font.render(f"Total  Score: {score}", True, white), (210,140))
+
+        #  keys = pygame.key.get_pressed()
+         
+         
+        #  if keys[pygame.K_RETURN]:
+        #     print(input_name)
+        #     ADD_TO_SCOREBOARD(input_name, score)
+        #     pygame.quit()
+        #     sys.exit()
+        #  elif keys[pygame.K_BACKSPACE]:
+        #     input_name = input_name[:-1]
+        #  else:
+        #     input_name += event.unicode
+
+
+        #  screen.blit(end_font.render(input_name.center(128), True, (255, 90, 90)), (width // 2 - 700, height -50)) #Input Name
+
+         pygame.display.flip()
+         pygame.time.wait(5000)
+         pygame.quit()
+         sys.exit()
+         
+         
+         
 
       #Organizing the words according to their length and put them in a list to use later
       def read_words1():
@@ -286,7 +317,7 @@ while True:
 
           if event.type == pygame.USEREVENT: # Updates the timer, and text to be displayed
             if minutes >= 3:
-               END_SCREEN_ITS_OVER(playername, score)
+               END_SCREEN_Display(score,event)
                break
             word_ttf -= 0.01
             gravity_cd -= 0.01
@@ -338,7 +369,6 @@ while True:
             screen.blit(words_fnt[x].render(words_ons[x], True, words_clr[x]), (words_pos[x][0], words_pos[x][1]))
             
         pygame.draw.rect(screen, (25, 25, 25), (0, 0, 800, 35))
-        screen.blit(font.render(name_text, True, font_colour), (650, 5))       #Playername
         screen.blit(font.render(the_big_time, True, font_colour), (360, 5))  #Timer
         screen.blit(font.render(f"Score: {score}", True, font_colour), (4, 4))    #Score
         screen.blit(font3.render(input_word.center(128), True, (255, 90, 90)), (width // 2 - 700, height -50)) #Input
