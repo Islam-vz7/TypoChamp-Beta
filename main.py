@@ -101,63 +101,25 @@ while True:
     if in_menu:
         display_menu()
     elif selected_option == 2:
-      screen = pygame.display.set_mode((width,height))
-      pygame.display.set_caption("Credits")
-      
-      
-      credits_text = [
-         "TypoChamp Credits",
-         "",
-         "• Python Developers: Islam , Noah",
-         "• Artwork: Issac, Joel",
-         "• Frontend, Wordpress Website Development &",
-         "Software Compiling: Joel",
-         "• Music: Isaac",
-         "",
-         "Thank you for very much playing!",
-         "",
-         "Press ESC to return to the main menu"
-      ]   
-      
-      while True:
-         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-               if event.key == pygame.K_ESCAPE:
-                  display_menu()
-                  
-            elif event.type == pygame.QUIT:
-               pygame.quit()
-               sys.exit()
-            
-         screen.fill(white)
-         
-         y_offset = 50
-         for line in credits_text:
-            text_surface = font.render(line, True, black)
-            text_rect = text_surface.get_rect(center = (width // 2, y_offset))
-            screen.blit(text_surface, text_rect)
-            y_offset += 40
-
-         pygame.display.flip()
-
+      pass
     elif selected_option == 1:
        pass
-
-
+    
     else:   
     #Defining
       surface_width = 100 
       surface_height = 300  
-      background_colour = ('#176B87')
+      background_colour = (35, 35, 35)
       font_size = 36
       font_colour = (255, 255, 255)
-      gravity = 0.15           # How fast a word falls
+      gravity = 0.2           # How fast a word falls
       gravity_cd = 10
       gravity_cdm = 10
-      word_cooldown = 3        # COOLDOWN in between each falling word // Lower = More Words
+      word_cooldown = 2.0        # COOLDOWN in between each falling word // Lower = More Words
       word_ttf = word_cooldown # TIME TO FALL
       game_over = False
       input_word = ""
+      score = 0
 
       screen = pygame.display.set_mode((width,height))
       pygame.display.set_caption('TypoChamp')
@@ -177,7 +139,7 @@ while True:
       milsec = 1000
       seconds = 0
       minutes = 0
-      score, score_text = 0, 'Score: 0'.rjust(30)
+      #score, score_text = 0, 'Score: 0'.rjust(30)
       playername, name_text = "Playername", "Playername".ljust(0) #Get player name from somewhere
       the_big_time = (str(minutes) + " : " + str(floor(seconds))).center(0)
       pygame.time.set_timer(pygame.USEREVENT, 10)             
@@ -225,34 +187,30 @@ while True:
         if minutes < level_1_et:
           new_word = str(random.choice(level1_words))
           fnt = pygame.font.Font(None, 44)
-          clr = (255, 255, 255)
           
         elif minutes < level_2_et:
           ch = random.randint(0, 1)
           if ch == 0:
             new_word = str(random.choice(level1_words))
             fnt = pygame.font.Font(None, 44)
-            clr = (255, 255, 255)
           if ch == 1:
             new_word = str(random.choice(level2_words))
             fnt = pygame.font.Font(None, 38)
-            clr = (255, 235, 235)
             
         elif minutes < level_3_et:
           ch = random.randint(0, 2)
           if ch == 0:
             new_word = str(random.choice(level1_words))
             fnt = pygame.font.Font(None, 44)
-            clr = (255, 255, 255)
           if ch == 1:
             new_word = str(random.choice(level2_words))
             fnt = pygame.font.Font(None, 38)
-            clr = (255, 235, 235)
           if ch == 2:
             new_word = str(random.choice(level3_words))
             fnt = pygame.font.Font(None, 34)
-            clr = (255, 215, 215)
         
+        cl = random.randint(100, 255)
+        clr = (cl, cl, cl)
         grv = gravity
         words_ons.append(new_word)
         words_pos.append([random.randint(50, 540), 0])
@@ -272,6 +230,22 @@ while True:
           if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+          elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE:
+              input_word = input_word[:-1]
+            elif event.key == pygame.K_RETURN:
+              for index in range(0, len(words_ons) - 1):
+                   if input_word == words_ons[index]:
+                      del words_ons[index]
+                      del words_pos[index]
+                      del words_grv[index]
+                      del words_fnt[index]
+                      del words_clr[index]
+                      score += len(input_word)
+              input_word = ""
+            elif event.key in range(97,123):
+              input_word += event.unicode
+
           if event.type == pygame.USEREVENT: # Updates the timer, and text to be displayed
             word_ttf -= 0.01
             gravity_cd -= 0.01
@@ -281,6 +255,9 @@ while True:
             if gravity_cd <= 0:
                gravity_cd = gravity_cdm
                gravity += 0.05
+               word_cooldown -= 0.15
+            if word_cooldown < 0.30:
+               word_cooldown = 0.30
             if seconds >= 60:
               seconds = 0
               minutes += 1
@@ -297,10 +274,16 @@ while True:
           for x in range(0, len(words_ons)):
             screen.blit(words_fnt[x].render(words_ons[x], True, words_clr[x]), (words_pos[x][0], words_pos[x][1]))
             
-        pygame.draw.rect(screen, (0, 0, 0), (0, 0, 800, 30))                 #Black bar on top
-        screen.blit(font.render(name_text, True, font_colour), (4, 4))       #Playername
-        screen.blit(font.render(the_big_time, True, font_colour), (360, 4))  #Timer
-        screen.blit(font.render(score_text, True, font_colour), (520, 4))    #Score
+        pygame.draw.rect(screen, (25, 25, 25), (0, 0, 800, 35))                 #Black bar on top
+        screen.blit(font.render(name_text, True, font_colour), (4, 5))       #Playername
+        screen.blit(font.render(the_big_time, True, font_colour), (360, 5))  #Timer
+
+
+        screen.blit(font.render(f"Score: {score}", True, font_colour), (670, 4))    #Score
+
+
+        input_surface = font.render(input_word, True, blue)
+        screen.blit(input_surface, (width // 2 - 50, height -50)) #Input
         pygame.display.flip()
         clock.tick(60)
 

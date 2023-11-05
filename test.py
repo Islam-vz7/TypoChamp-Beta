@@ -1,30 +1,37 @@
 import pygame
 import sys
+import random
 
 # Initialize Pygame
 pygame.init()
 
-# Set up display
-screen_width = 800
-screen_height = 600
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Credits Screen")
+# Set up the game window
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Word Fall Game")
 
-# Set up fonts
+# Set up colors
+white = (255, 255, 255)
+black = (0, 0, 0)
+
+# Set up the font
 font = pygame.font.Font(None, 36)
 
-# Define credits text
-credits_text = [
-    "Credits",
-    "",
-    "Developer: Your Name",
-    "Artwork: Artist Name",
-    "Music: Composer Name",
-    "",
-    "Thank you for playing!",
-    "",
-    "Press ESC to return to the main menu",
-]
+# Load a list of words
+word_list = ["python", "game", "pygame", "coding", "keyboard", "challenge", "fun"]
+
+# Initialize variables
+falling_words = []
+input_word = ""
+score = 0
+
+# Function to generate a new falling word
+def generate_falling_word():
+    return {
+        "word": random.choice(word_list),
+        "x": random.randint(0, width - 100),
+        "y": 0
+    }
 
 # Main game loop
 while True:
@@ -33,23 +40,46 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
+            if event.key == pygame.K_BACKSPACE:
+                input_word = input_word[:-1]
+            elif event.key == pygame.K_RETURN:
+                for word in falling_words:
+                    if input_word == word["word"]:
+                        falling_words.remove(word)
+                        score += 1
+                input_word = ""
+            elif event.key in range(97, 123):  # Check if the key is a lowercase letter
+                input_word += event.unicode
 
-    # Clear the screen
-    screen.fill((255, 255, 255))
+    # Update falling words
+    for word in falling_words:
+        word["y"] += 5
 
-    # Display credits text
-    y_offset = 50
-    for line in credits_text:
-        text_surface = font.render(line, True, (0, 0, 0))
-        text_rect = text_surface.get_rect(center=(screen_width // 2, y_offset))
-        screen.blit(text_surface, text_rect)
-        y_offset += 40
+    # Generate a new falling word
+    if random.randint(0, 100) < 5:
+        falling_words.append(generate_falling_word())
+
+    # Check for collision with the bottom
+    for word in falling_words:
+        if word["y"] > height - 50:
+            falling_words.remove(word)
+
+    # Draw everything
+    screen.fill(white)
+
+    for word in falling_words:
+        word_surface = font.render(word["word"], True, black)
+        screen.blit(word_surface, (word["x"], word["y"]))
+
+    input_surface = font.render(input_word, True, black)
+    screen.blit(input_surface, (width // 2 - 50, height - 50))
+
+    # Display the score
+    score_surface = font.render(f"Score: {score}", True, black)
+    screen.blit(score_surface, (10, 10))
 
     # Update the display
     pygame.display.flip()
 
-# Note: This is a basic example, and you can customize it further based on your needs,
-# such as adding images, animations, or additional information in the credits.
+    # Cap the frame rate
+    pygame.time.Clock().tick(30)
