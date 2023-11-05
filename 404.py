@@ -309,6 +309,16 @@ while True:
             seconds += 0.01
             the_big_time = (str(minutes) + " : " + str(floor(seconds))).center(0)
             apply_gravity()
+
+            for index in range(0, len(words_ons) - 1):
+               if words_pos[index][1] >= 200:
+                      del words_ons[index]
+                      del words_pos[index]
+                      del words_grv[index]
+                      del words_fnt[index]
+                      del words_clr[index]
+                      break
+
             if gravity_cd <= 0:
                gravity_cd = gravity_cdm
                gravity += 0.05
@@ -325,18 +335,19 @@ while True:
 
         #Displaying text
         if(len(words_ons) > 0):
-          for x in range(0, len(words_ons)):
+          for x in range(0, len(words_ons) - 1):
             screen.blit(words_fnt[x].render(words_ons[x], True, words_clr[x]), (words_pos[x][0], words_pos[x][1]))
             
-        pygame.draw.rect(screen, (0, 0, 0), (0, 0, 800, 30))                 #Black bar on top
-        screen.blit(font.render(name_text, True, font_colour), (4, 4))       #Playername
-        screen.blit(font.render(the_big_time, True, font_colour), (360, 4))  #Timer
+        pygame.draw.rect(screen, (25, 25, 25), (0, 0, 800, 35))                 #Black bar on top
+        screen.blit(font.render(name_text, True, font_colour), (650, 5))       #Playername
+        screen.blit(font.render(the_big_time, True, font_colour), (360, 5))  #Timer
 
-        screen.blit(font.render(f"Score: {score}", True, font_colour), (650, 4))    #Score
 
-        input_surface = font.render(input_word, True, red)
-        screen.blit(input_surface, (width // 2 - 50, height -50))
+        screen.blit(font.render(f"Score: {score}", True, font_colour), (4, 4))    #Score
 
+
+        input_surface = font.render(input_word, True, blue)
+        screen.blit(input_surface, (width // 2 - 50, height -50)) #Input
         pygame.display.flip()
         clock.tick(60)
 
@@ -366,11 +377,15 @@ while True:
 #                         if player_name.lower() == 'quit':
 #                             break
 
-#                         score = int(input("Enter your score: "))
+#                         score = int(input("Enter your score: ") # -> Maybe we should record their scorea automatically 
 
 #                         add_score(player_name, score)
-#                         display_scoreboard()
+#                         Rank user's scores in descending order 
+#                         ranked_scores = sorted(scores, reverse=True)
 
+#                        Print the ranked scores
+#                        for rank, score in enumerate(ranked_scores, start=1):
+#                        print(f"Rank {rank}: {score}")
 #                     print("Game over! Final scoreboard:")
 #                     display_scoreboard() #
           

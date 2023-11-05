@@ -234,7 +234,7 @@ while True:
             if event.key == pygame.K_BACKSPACE:
               input_word = input_word[:-1]
             elif event.key == pygame.K_RETURN:
-              for index in range(0, len(words_ons) - 1):
+                for index in range(0, len(words_ons) - 1):
                    if input_word == words_ons[index]:
                       del words_ons[index]
                       del words_pos[index]
@@ -242,7 +242,7 @@ while True:
                       del words_fnt[index]
                       del words_clr[index]
                       score += len(input_word)
-              input_word = ""
+                input_word = ""
             elif event.key in range(97,123):
               input_word += event.unicode
 
@@ -252,6 +252,16 @@ while True:
             seconds += 0.01
             the_big_time = (str(minutes) + " : " + str(floor(seconds))).center(0)
             apply_gravity()
+
+            for index in range(0, len(words_ons) - 1):
+               if words_pos[index][1] >= 600:
+                      del words_ons[index]
+                      del words_pos[index]
+                      del words_grv[index]
+                      del words_fnt[index]
+                      del words_clr[index]
+                      break
+               
             if gravity_cd <= 0:
                gravity_cd = gravity_cdm
                gravity += 0.05
@@ -269,21 +279,30 @@ while True:
         pygame.display.update()
         screen.fill(background_colour)
 
+        #Bottom Gradient draw start
+        hhh = 520
+        ccc = 35
+        rrr = 0
+        zzz = 0
+        for i in range(0, 90):
+          pygame.draw.rect(screen, (ccc + int(rrr), ccc + zzz, ccc + zzz), (0, hhh, 800, 1))
+          hhh += 1
+          rrr += 0.5
+          zzz = int(rrr / 2)
+        #Bottom Gradient draw end
+
         #Displaying text
         if(len(words_ons) > 0):
           for x in range(0, len(words_ons)):
             screen.blit(words_fnt[x].render(words_ons[x], True, words_clr[x]), (words_pos[x][0], words_pos[x][1]))
             
-        pygame.draw.rect(screen, (25, 25, 25), (0, 0, 800, 35))                 #Black bar on top
-        screen.blit(font.render(name_text, True, font_colour), (4, 5))       #Playername
+        pygame.draw.rect(screen, (25, 25, 25), (0, 0, 800, 35))
+        #pygame.draw.rect(screen, (white), (350, 540, 100, 35))                 #Black bar on top
+        screen.blit(font.render(name_text, True, font_colour), (650, 5))       #Playername
         screen.blit(font.render(the_big_time, True, font_colour), (360, 5))  #Timer
+        screen.blit(font.render(f"Score: {score}", True, font_colour), (4, 4))    #Score
+        screen.blit(font.render(input_word.center(33), True, red), (width // 2 - 160, height -50)) #Input
 
-
-        screen.blit(font.render(f"Score: {score}", True, font_colour), (670, 4))    #Score
-
-
-        input_surface = font.render(input_word, True, blue)
-        screen.blit(input_surface, (width // 2 - 50, height -50)) #Input
         pygame.display.flip()
         clock.tick(60)
 
