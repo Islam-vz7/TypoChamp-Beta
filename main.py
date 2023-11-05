@@ -22,8 +22,8 @@ pygame.init()
 # Set up the game window
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-# icon = pygame.image.load("icon.png") 
-# pygame.display.set_icon(icon)  
+icon = pygame.image.load("icon.png") 
+pygame.display.set_icon(icon)  
 pygame.display.set_caption("TypoChamp")
 
 # Set up colors
@@ -100,8 +100,50 @@ while True:
 
     if in_menu:
         display_menu()
-    #elif :
-    
+    elif selected_option == 2:
+      screen = pygame.display.set_mode((width,height))
+      pygame.display.set_caption("Credits")
+      
+      
+      credits_text = [
+         "TypoChamp Credits",
+         "",
+         "• Python Developers: Islam , Noah",
+         "• Artwork: Issac, Joel",
+         "• Frontend, Wordpress Website Development &",
+         "Software Compiling: Joel",
+         "• Music: Isaac",
+         "",
+         "Thank you for very much playing!",
+         "",
+         "Press ESC to return to the main menu"
+      ]   
+      
+      while True:
+         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+               if event.key == pygame.K_ESCAPE:
+                  display_menu()
+                  
+            elif event.type == pygame.QUIT:
+               pygame.quit()
+               sys.exit()
+            
+         screen.fill(white)
+         
+         y_offset = 50
+         for line in credits_text:
+            text_surface = font.render(line, True, black)
+            text_rect = text_surface.get_rect(center = (width // 2, y_offset))
+            screen.blit(text_surface, text_rect)
+            y_offset += 40
+
+         pygame.display.flip()
+
+    elif selected_option == 1:
+       pass
+
+
     else:   
     #Defining
       surface_width = 100 
@@ -109,8 +151,10 @@ while True:
       background_colour = ('#176B87')
       font_size = 36
       font_colour = (255, 255, 255)
-      gravity = 0.2           # How fast a word falls
-      word_cooldown = 1.5        # COOLDOWN in between each falling word // Lower = More Words
+      gravity = 0.15           # How fast a word falls
+      gravity_cd = 10
+      gravity_cdm = 10
+      word_cooldown = 3        # COOLDOWN in between each falling word // Lower = More Words
       word_ttf = word_cooldown # TIME TO FALL
       game_over = False
       input_word = ""
@@ -120,9 +164,16 @@ while True:
       clock = pygame.time.Clock() 
       font = pygame.font.Font(None ,font_size)
 
+      level_1_et = 1  #On which minute level 1 ends
+      level_2_et = 2  #On which minute level 2 ends
+      level_3_et = 3  #On which minute level 3 ends
+      
       words_ons = []  #List of all words on screen
       words_pos = []  #List of all word positions on screen // index 0 is position of word index 0 in words_ons
       words_grv = []  #List of all word fall speeds
+      words_fnt = []  #List of all word fonts // each word has own custom font
+      words_clr = []  #List of all word colors
+ 
       milsec = 1000
       seconds = 0
       minutes = 0
@@ -140,7 +191,7 @@ while True:
          with open("words.txt", "+r") as file:
             for line in file:
               word = line.strip()
-              if 1 <= len(word) <= 4:
+              if 1 <= len(word) <= 6:
                 level1_words.append(word)
           
          return level1_words
@@ -150,20 +201,64 @@ while True:
          with open("words.txt", "+r") as file:
             for line in file:
               word = line.strip()
-              if len(word) >= 5:
+              if 7 <= len(word) <= 10:
                  level2_words.append(word) 
 
          return level2_words
       
+      def read_words3():
+         level3_words = []
+         with open("words.txt", "+r") as file:
+            for line in file:
+              word = line.strip()
+              if  len(word) >= 11:
+                 level3_words.append(word) 
+
+         return level3_words
+
       level1_words = read_words1()
       level2_words = read_words2()
+      level3_words = read_words3()
 
       
       def spawn_new_word(): #Spawns a new word on screen
-        new_word = str(random.choice(level1_words))
+        if minutes < level_1_et:
+          new_word = str(random.choice(level1_words))
+          fnt = pygame.font.Font(None, 44)
+          clr = (255, 255, 255)
+          
+        elif minutes < level_2_et:
+          ch = random.randint(0, 1)
+          if ch == 0:
+            new_word = str(random.choice(level1_words))
+            fnt = pygame.font.Font(None, 44)
+            clr = (255, 255, 255)
+          if ch == 1:
+            new_word = str(random.choice(level2_words))
+            fnt = pygame.font.Font(None, 38)
+            clr = (255, 235, 235)
+            
+        elif minutes < level_3_et:
+          ch = random.randint(0, 2)
+          if ch == 0:
+            new_word = str(random.choice(level1_words))
+            fnt = pygame.font.Font(None, 44)
+            clr = (255, 255, 255)
+          if ch == 1:
+            new_word = str(random.choice(level2_words))
+            fnt = pygame.font.Font(None, 38)
+            clr = (255, 235, 235)
+          if ch == 2:
+            new_word = str(random.choice(level3_words))
+            fnt = pygame.font.Font(None, 34)
+            clr = (255, 215, 215)
+        
+        grv = gravity
         words_ons.append(new_word)
         words_pos.append([random.randint(50, 540), 0])
-        words_grv.append((random.randint(1, 10) / 10))
+        words_grv.append(grv)
+        words_fnt.append(fnt)
+        words_clr.append(clr)
         print(f"New word: {words_ons[-1]}, Position: X:{words_pos[-1][0]} Y:{words_pos[-1][1]}")
 
 
@@ -179,9 +274,13 @@ while True:
             sys.exit()
           if event.type == pygame.USEREVENT: # Updates the timer, and text to be displayed
             word_ttf -= 0.01
+            gravity_cd -= 0.01
             seconds += 0.01
             the_big_time = (str(minutes) + " : " + str(floor(seconds))).center(0)
             apply_gravity()
+            if gravity_cd <= 0:
+               gravity_cd = gravity_cdm
+               gravity += 0.05
             if seconds >= 60:
               seconds = 0
               minutes += 1
@@ -196,7 +295,7 @@ while True:
         #Displaying text
         if(len(words_ons) > 0):
           for x in range(0, len(words_ons)):
-            screen.blit(font2.render(words_ons[x], True, font_colour), (words_pos[x][0], words_pos[x][1]))
+            screen.blit(words_fnt[x].render(words_ons[x], True, words_clr[x]), (words_pos[x][0], words_pos[x][1]))
             
         pygame.draw.rect(screen, (0, 0, 0), (0, 0, 800, 30))                 #Black bar on top
         screen.blit(font.render(name_text, True, font_colour), (4, 4))       #Playername
@@ -206,7 +305,41 @@ while True:
         clock.tick(60)
 
 
-        #Add ranking board 
+# #Add ranking board 
+#                           ## Initialize an empty scoreboard
+#                     scoreboard = {}
+
+#                     def add_score(player, score):
+#                         """Add a player's score to the scoreboard."""
+#                         if player in scoreboard:
+#                             scoreboard[player] += score
+#                         else:
+#                             scoreboard[player] = score
+
+#                     def display_scoreboard():
+#                         """Display the current scoreboard."""
+#                         print("----- Scoreboard -----")
+#                         for player, score in scoreboard.items():
+#                             print(f"{player}: {score} points")
+#                         print("----------------------")
+
+#                     # Main game loop
+#                     while True:
+#                         player_name = input("Enter your name (or 'quit' to exit): ")
+
+#                         if player_name.lower() == 'quit':
+#                             break
+
+#                         score = int(input("Enter your score: "))
+
+#                         add_score(player_name, score)
+#                         display_scoreboard()
+
+#                     print("Game over! Final scoreboard:")
+#                     display_scoreboard() #
+          
+# This code defines a simple word typing game scoreboard using a dictionary to store player scores. Players can enter their names and scores, and the add_score function keeps track of their scores. The display_scoreboard function prints the current scoreboard. The main game loop continues until the player enters 'quit'. Once the game is over, the final scoreboard is displayed. You can expand and modify this code to suit the specific requirements of your word typing game. #
+
         
 
 
