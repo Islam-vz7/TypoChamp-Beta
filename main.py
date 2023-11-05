@@ -40,9 +40,10 @@ menu_ground = pygame.image.load("TypoChampLogo.png")
 font = pygame.font.Font(None, 36)
 font2 = pygame.font.Font(None, 42)
 font3 = pygame.font.Font(None, 52)
+font4 = pygame.font.Font(None, 64)
 
 # Define the menu options
-menu_options = ["Start",  "Scores", "Credits", "Quit"] 
+menu_options = ["Start", "Quit"] 
 # round_options = ["Keep Challenging", "Give up"]
 
 # Initialize variables
@@ -64,8 +65,8 @@ def display_menu():
 
     for i, option in enumerate(menu_options):
         text_color = purple if i == selected_option else black
-        text_surface = font.render(option, True, text_color)
-        text_rect = text_surface.get_rect(center=(width // 2, height // 2 + i * 50))
+        text_surface = font4.render(option, True, text_color)
+        text_rect = text_surface.get_rect(center=(width // 2, height // 1.6 + i * 50))
         screen.blit(text_surface, text_rect)
 
     pygame.display.flip()
@@ -160,7 +161,7 @@ while True:
             for line in file:
               word = line.strip()
               if 1 <= len(word) <= 6:
-                level1_words.append(word)
+                level1_words.append(str(word).lower())
           
          return level1_words
       
@@ -170,7 +171,7 @@ while True:
             for line in file:
               word = line.strip()
               if 7 <= len(word) <= 10:
-                 level2_words.append(word) 
+                 level2_words.append(str(word).lower()) 
 
          return level2_words
       
@@ -180,7 +181,7 @@ while True:
             for line in file:
               word = line.strip()
               if  len(word) >= 11:
-                 level3_words.append(word) 
+                 level3_words.append(str(word).lower()) 
 
          return level3_words
 
