@@ -192,27 +192,58 @@ while True:
       def spawn_new_word(): #Spawns a new word on screen
         if minutes < level_1_et:
           new_word = str(random.choice(level1_words))
+          while True:
+             if new_word in words_ons:
+                new_word = str(random.choice(level1_words))
+             else:
+                break
           fnt = pygame.font.Font(None, 44)
           
         elif minutes < level_2_et:
           ch = random.randint(0, 1)
           if ch == 0:
             new_word = str(random.choice(level1_words))
+            while True:
+              if new_word in words_ons:
+                  new_word = str(random.choice(level1_words))
+              else:
+                  break
             fnt = pygame.font.Font(None, 44)
           if ch == 1:
             new_word = str(random.choice(level2_words))
+            while True:
+              if new_word in words_ons:
+                  new_word = str(random.choice(level1_words))
+              else:
+                  break
             fnt = pygame.font.Font(None, 38)
             
         elif minutes < level_3_et:
           ch = random.randint(0, 2)
           if ch == 0:
             new_word = str(random.choice(level1_words))
+            while True:
+              if new_word in words_ons:
+                  new_word = str(random.choice(level1_words))
+              else:
+                  break
             fnt = pygame.font.Font(None, 44)
           if ch == 1:
             new_word = str(random.choice(level2_words))
+            while True:
+              if new_word in words_ons:
+                  new_word = str(random.choice(level1_words))
+              else:
+                  break
             fnt = pygame.font.Font(None, 38)
           if ch == 2:
             new_word = str(random.choice(level3_words))
+            while True:
+              if new_word in words_ons:
+                  new_word = str(random.choice(level1_words))
+              else:
+                  break
+              
             fnt = pygame.font.Font(None, 34)
         
         cl = random.randint(100, 255)
@@ -255,6 +286,7 @@ while True:
           if event.type == pygame.USEREVENT: # Updates the timer, and text to be displayed
             if minutes >= 3:
                END_SCREEN_ITS_OVER(playername, score)
+               break
             word_ttf -= 0.01
             gravity_cd -= 0.01
             seconds += 0.01
@@ -308,7 +340,7 @@ while True:
         screen.blit(font.render(name_text, True, font_colour), (650, 5))       #Playername
         screen.blit(font.render(the_big_time, True, font_colour), (360, 5))  #Timer
         screen.blit(font.render(f"Score: {score}", True, font_colour), (4, 4))    #Score
-        screen.blit(font3.render(input_word.center(128), True, (255, 0, 0)), (width // 2 - 660, height -50)) #Input
+        screen.blit(font3.render(input_word.center(128), True, (255, 90, 90)), (width // 2 - 700, height -50)) #Input
 
         pygame.display.flip()
         clock.tick(60)
